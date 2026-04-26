@@ -2,11 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\Cc;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * Seeder des centres de services scolaires.
+ */
 class CcsSeeder extends Seeder
 {
+    /**
+     * Exécute l'insertion des centres de services scolaires de référence.
+     */
     public function run(): void
     {
         $centres = [
@@ -20,6 +26,8 @@ class CcsSeeder extends Seeder
             ['nom' => 'Centre de services scolaire du Val-des-Cerfs'],
         ];
 
-        DB::table('ccs')->insert($centres);
+        foreach ($centres as $centre) {
+            Cc::create($centre);
+        }
     }
 }

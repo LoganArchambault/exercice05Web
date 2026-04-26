@@ -7,25 +7,37 @@ use App\Models\Cc;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour gérer les centres de services scolaires.
+ */
 class CentreController extends Controller
 {
+    /**
+     * Liste les centres avec filtre optionnel par nom.
+     *
+     * @param Request $request Requête contenant les filtres.
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Cc::withCount('postes');
 
-        // Filtrage par nom (insensible à la casse)
         if ($request->has('nom')) {
             $query->where('nom', 'like', '%' . $request->input('nom') . '%');
         }
 
-        // Tri par ordre décroissant du nombre de postes
         $centres = $query->orderByDesc('postes_count')->get();
 
         return response()->json([
-            'data'    => $centres,
+            'data' => $centres,
         ]);
     }
 
+    /**
+     * Retourne les statistiques des centres.
+     *
+     * @return JsonResponse
+     */
     public function stats(): JsonResponse
     {
         $stats = Cc::withCount('postes')
@@ -34,18 +46,24 @@ class CentreController extends Controller
             ->get()
             ->map(function (Cc $centre) {
                 return [
-                    'id'           => $centre->id,
-                    'nom'          => $centre->nom,
-                    'nb_ecoles'    => $centre->ecoles->count(),
-                    'nb_postes'    => $centre->postes_count,
+                    'id' => $centre->id,
+                    'nom' => $centre->nom,
+                    'nb_ecoles' => $centre->ecoles->count(),
+                    'nb_postes' => $centre->postes_count,
                 ];
             });
 
         return response()->json([
-            'data'    => $stats,
+            'data' => $stats,
         ]);
     }
 
+    /**
+     * Retourne les postes d'un centre.
+     *
+     * @param int $id Identifiant du centre.
+     * @return JsonResponse
+     */
     public function postes(int $id): JsonResponse
     {
         $centre = Cc::with(['postes.ecole', 'postes.matieres'])->find($id);
@@ -57,8 +75,8 @@ class CentreController extends Controller
         }
 
         return response()->json([
-            'centre'  => $centre->nom,
-            'data'    => $centre->postes,
+            'centre' => $centre->nom,
+            'data' => $centre->postes,
         ]);
     }
 }

@@ -7,18 +7,27 @@ use App\Models\Poste;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour gérer les postes.
+ */
 class PosteController extends Controller
 {
+    /**
+     * Liste les postes avec filtres optionnels.
+     *
+     * @param Request $request Requête contenant les filtres.
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $query = Poste::with(['ecole.css', 'matieres']);
 
         if ($request->has('charge_min')) {
-            $query->where('charge', '>=', (float) $request->input('charge_min'));
+            $query->where('charge', '>=', (float)$request->input('charge_min'));
         }
 
         if ($request->has('charge_max')) {
-            $query->where('charge', '<=', (float) $request->input('charge_max'));
+            $query->where('charge', '<=', (float)$request->input('charge_max'));
         }
 
         if ($request->has('ecole_id')) {
@@ -28,16 +37,23 @@ class PosteController extends Controller
         $postes = $query->paginate(10);
 
         return response()->json([
-            'data'    => $postes,
+            'data' => $postes,
         ]);
     }
+
+    /**
+     * Crée un nouveau poste.
+     *
+     * @param Request $request Requête contenant les données du poste.
+     * @return JsonResponse
+     */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'ecole_id'    => 'required|integer|exists:ecoles,id',
-            'nom'         => 'required|string|max:255',
+            'ecole_id' => 'required|integer|exists:ecoles,id',
+            'nom' => 'required|string|max:255',
             'description' => 'required|string',
-            'charge'      => 'required|numeric|min:0|max:100',
+            'charge' => 'required|numeric|min:0|max:100',
         ]);
 
         $poste = Poste::create($validated);
@@ -45,10 +61,16 @@ class PosteController extends Controller
 
         return response()->json([
             'message' => 'Poste créé avec succès.',
-            'data'    => $poste,
+            'data' => $poste,
         ], 201);
     }
 
+    /**
+     * Retourne le détail d'un poste.
+     *
+     * @param int $id Identifiant du poste.
+     * @return JsonResponse
+     */
     public function show(int $id): JsonResponse
     {
         $poste = Poste::with(['ecole.css', 'matieres', 'candidatures.personne'])->find($id);
@@ -60,10 +82,16 @@ class PosteController extends Controller
         }
 
         return response()->json([
-            'data'    => $poste,
+            'data' => $poste,
         ]);
     }
 
+    /**
+     * Supprime un poste.
+     *
+     * @param int $id Identifiant du poste.
+     * @return JsonResponse
+     */
     public function destroy(int $id): JsonResponse
     {
         $poste = Poste::find($id);

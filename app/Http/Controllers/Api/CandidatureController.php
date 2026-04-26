@@ -8,17 +8,33 @@ use App\Models\Poste;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * Contrôleur pour gérer les candidatures aux postes.
+ */
 class CandidatureController extends Controller
 {
+    /**
+     * Liste les candidatures paginées avec les relations associées.
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         $candidatures = Candidature::with(['poste.ecole', 'personne'])
             ->paginate(10);
 
         return response()->json([
-            'data'    => $candidatures,
+            'data' => $candidatures,
         ]);
     }
+
+    /**
+     * Crée une candidature pour un poste donné.
+     *
+     * @param Request $request Requête contenant les données de candidature.
+     * @param int $posteId Identifiant du poste ciblé.
+     * @return JsonResponse
+     */
     public function store(Request $request, int $posteId): JsonResponse
     {
         $poste = Poste::find($posteId);
@@ -31,10 +47,9 @@ class CandidatureController extends Controller
 
         $validated = $request->validate([
             'personne_id' => 'required|integer|exists:personnes,id',
-            'statut'      => 'sometimes|in:en_attente,accepte,refuse',
+            'statut' => 'sometimes|in:en_attente,accepte,refuse',
         ]);
 
-        // Empêcher les doublons : une personne ne peut postuler deux fois au même poste
         $existeDeja = Candidature::where('poste_id', $posteId)
             ->where('personne_id', $validated['personne_id'])
             ->exists();
@@ -46,18 +61,25 @@ class CandidatureController extends Controller
         }
 
         $candidature = Candidature::create([
-            'poste_id'    => $posteId,
+            'poste_id' => $posteId,
             'personne_id' => $validated['personne_id'],
-            'statut'      => $validated['statut'] ?? 'en_attente',
+            'statut' => $validated['statut'] ?? 'en_attente',
         ]);
 
         $candidature->load(['poste.ecole', 'personne']);
 
         return response()->json([
             'message' => 'Candidature soumise avec succès.',
-            'data'    => $candidature,
+            'data' => $candidature,
         ], 201);
     }
+
+    /**
+     * Retourne toutes les candidatures associées à un poste.
+     *
+     * @param int $posteId Identifiant du poste.
+     * @return JsonResponse
+     */
     public function parPoste(int $posteId): JsonResponse
     {
         $poste = Poste::find($posteId);
@@ -73,8 +95,8 @@ class CandidatureController extends Controller
             ->get();
 
         return response()->json([
-            'poste'   => $poste->nom,
-            'data'    => $candidatures,
+            'poste' => $poste->nom,
+            'data' => $candidatures,
         ]);
     }
 }

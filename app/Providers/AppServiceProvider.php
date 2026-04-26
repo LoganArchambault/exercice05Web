@@ -7,10 +7,13 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
 
+/**
+ * Fournisseur de services principal de l'application.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Enregistre les services de l'application dans le conteneur.
      */
     public function register(): void
     {
@@ -18,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Initialise les services au démarrage, dont la limitation de débit API.
      */
     public function boot(): void
     {

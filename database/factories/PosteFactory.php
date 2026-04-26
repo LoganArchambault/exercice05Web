@@ -3,10 +3,21 @@
 namespace Database\Factories;
 
 use App\Models\Ecole;
+use App\Models\Poste;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * Factory pour générer des postes.
+ *
+ * @extends Factory<Poste>
+ */
 class PosteFactory extends Factory
 {
+    /**
+     * Définit les valeurs par défaut du modèle Poste.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         $titres = [
@@ -27,10 +38,10 @@ class PosteFactory extends Factory
         ];
 
         return [
-            'ecole_id'    => Ecole::inRandomOrder()->first()->id,
-            'nom'         => $this->faker->randomElement($titres),
-            'description' => $this->faker->paragraph(3),
-            'charge'      => $this->faker->randomFloat(2, 20, 100),
+            'ecole_id' => Ecole::inRandomOrder()->first()->id,
+            'nom' => $this->faker->randomElement($titres),
+            'description' => $this->faker->paragraph(),
+            'charge' => $this->faker->randomFloat(0, 0, 100),
         ];
     }
 }

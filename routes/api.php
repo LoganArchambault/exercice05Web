@@ -8,9 +8,28 @@ use App\Http\Controllers\Api\PosteController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Routes API de l'application.
+ *
+ * - Authentification publique : connexion et inscription.
+ * - Ressources protégées : accès avec token Sanctum.
+ */
+
+/**
+ * Endpoints publics d'authentification.
+ */
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+
+/**
+ * Endpoints nécessitant un utilisateur authentifié.
+ */
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    /**
+     * Endpoints protégés avec limitation de débit API.
+     */
     Route::middleware('throttle:api')->group(function () {
 
         Route::get('/postes', [PosteController::class, 'index']);
